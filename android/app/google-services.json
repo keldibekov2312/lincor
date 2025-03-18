@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1069163168743",
+    "project_id": "lincor-3de1a",
+    "storage_bucket": "lincor-3de1a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069163168743:android:05b14a0ece660fbe673342",
+        "android_client_info": {
+          "package_name": "com.example.lincor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADMqRaLAmIgy8fD1xN6V_1W_Pei1xXvVA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
