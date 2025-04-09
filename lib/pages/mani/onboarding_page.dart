@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'register_page.dart';
 
-class OnboardingPage extends StatefulWidget {
-  @override
-  _OnboardingPageState createState() => _OnboardingPageState();
-}
+import '../../controllers/onboarding_controller.dart';
+import '../auth/login_page.dart';
+import '../auth/register_page.dart';
 
-class _OnboardingPageState extends State<OnboardingPage> {
-  final PageController _pageController = PageController();
-  int currentPage = 0;
 
-  List<Map<String, String>> onboardingData = [
+class OnboardingPage extends StatelessWidget {
+  final OnboardingController onboardingController = Get.find();
+
+  final List<Map<String, String>> onboardingData = [
     {
       "title": "Xush kelibsiz!",
       "description": "Ilovamizdan foydalanish uchun bir necha qadamlarni bajaring.",
@@ -25,29 +22,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
     },
     {
       "title": "Boshlashga tayyormisiz?",
-      "description": "Endi ro'yxatdan o'tib, ilovadan foydalanishni boshlang!",
+      "description": "Endi ro‘yxatdan o‘tib, ilovadan foydalanishni boshlang!",
       "image": "assets/images/onboarding3.png",
     },
   ];
-
-  Future<void> _completeOnboarding() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("hasSeenOnboarding", true);
-    Get.offAll(() => RegisterPage()); // 🔹 Onboarding tugagandan keyin ro‘yxatdan o‘tish sahifasiga yo‘naltirish
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
+          Obx(() => onboardingController.currentPage.value < 2
+              ? Align(
+            alignment: Alignment.topRight,
+            child: TextButton(
+              onPressed: onboardingController.skipOnboarding,
+              child: Text("Skip"),
+            ),
+          )
+              : SizedBox.shrink()),
           Expanded(
             child: PageView.builder(
-              controller: _pageController,
               onPageChanged: (index) {
-                setState(() {
-                  currentPage = index;
-                });
+                onboardingController.currentPage.value = index;
               },
               itemCount: onboardingData.length,
               itemBuilder: (context, index) => OnboardingContent(
@@ -65,19 +62,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
           ),
           SizedBox(height: 20),
-          ElevatedButton(
+          Obx(() => onboardingController.currentPage.value == onboardingData.length - 1
+              ? Column(
+            children: [
+              ElevatedButton(
+                onPressed: () => Get.to(() => LoginPage()),
+                child: Text("Kirish"),
+              ),
+              TextButton(
+                onPressed: () => Get.to(() => RegisterPage()),
+                child: Text("Ro‘yxatdan o‘tish"),
+              ),
+            ],
+          )
+              : ElevatedButton(
             onPressed: () {
-              if (currentPage == onboardingData.length - 1) {
-                _completeOnboarding();
-              } else {
-                _pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                );
-              }
+              onboardingController.nextPage(onboardingData.length);
             },
-            child: Text(currentPage == onboardingData.length - 1 ? "Boshlash" : "Keyingisi"),
-          ),
+            child: Text("Keyingisi"),
+          )),
           SizedBox(height: 40),
         ],
       ),
@@ -85,15 +88,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget buildDot(int index) {
-    return Container(
+    return Obx(() => Container(
       margin: EdgeInsets.only(right: 5),
       height: 10,
-      width: currentPage == index ? 20 : 10,
+      width: onboardingController.currentPage.value == index ? 20 : 10,
       decoration: BoxDecoration(
-        color: currentPage == index ? Colors.blue : Colors.grey,
+        color: onboardingController.currentPage.value == index ? Colors.blue : Colors.grey,
         borderRadius: BorderRadius.circular(5),
       ),
-    );
+    ));
   }
 }
 
